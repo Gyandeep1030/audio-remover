@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run build:frontend",
+  "outputDirectory": "dist/spa",
+  "framework": "vite",
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
