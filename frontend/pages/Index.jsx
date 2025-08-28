@@ -131,7 +131,7 @@ export default function Index() {
             {/* Upload Section */}
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
-                Upload Video File
+                Upload Video File Size less then 100mb*
               </label>
               
               <div
