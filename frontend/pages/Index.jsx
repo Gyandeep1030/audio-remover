@@ -3,6 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button.jsx";
 import { Upload, Video, Download, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils.js";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+
+
+
+const ffmpeg = new FFmpeg({ log: true });
 
 export default function Index() {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -12,18 +17,39 @@ export default function Index() {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
 
+  // ✅ Preload FFmpeg when app mounts
+  useEffect(() => {
+    const loadFFmpeg = async () => {
+      if (!ffmpeg.loaded) {
+        await ffmpeg.load();
+      }
+    };
+    loadFFmpeg();
+  }, []);
+
   const handleFileSelect = (file) => {
-    if (file && file.type.startsWith('video/')) {
-      setUploadedFile(file);
-      setIsProcessed(false);
+    if (!file) return;
+
+    // ✅ File type check
+    if (!file.type.startsWith("video/")) {
+      alert("Please upload a valid video file.");
+      return;
     }
+
+    // ✅ File size limit (100MB for browser safety)
+    if (file.size > 100 * 1024 * 1024) {
+      alert("File too large. Please upload a video under 100MB.");
+      return;
+    }
+
+    setUploadedFile(file);
+    setIsProcessed(false);
+    setProcessedUrl(null);
   };
 
   const handleFileInputChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      handleFileSelect(file);
-    }
+    handleFileSelect(file);
   };
 
   const handleDrag = (e) => {
@@ -40,43 +66,34 @@ export default function Index() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
     const file = e.dataTransfer.files?.[0];
-    if (file) {
-      handleFileSelect(file);
-    }
+    handleFileSelect(file);
   };
 
   const handleProcess = async () => {
     if (!uploadedFile) return;
-    
     setIsProcessing(true);
-    
+
     try {
-      // Create FormData object to send file
-      const formData = new FormData();
-      formData.append('video', uploadedFile);
-      
-      // Send request to backend
-      const response = await fetch('/api/remove-audio', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to process video');
-      }
-      
-      // Create download URL from response
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      
-      // Store download URL in state
+      // Write file into FFmpeg FS
+      const fileData = await readFileAsUint8Array(uploadedFile);
+      await ffmpeg.writeFile("input.mp4", fileData);
+
+      // Run FFmpeg command (example: strip audio)
+      await ffmpeg.exec(["-i", "input.mp4", "-an", "output.mp4"]);
+
+      // Read result
+      const data = await ffmpeg.readFile("output.mp4");
+
+      const url = URL.createObjectURL(
+        new Blob([data.buffer], { type: "video/mp4" })
+      );
+
       setProcessedUrl(url);
       setIsProcessed(true);
-    } catch (error) {
-      console.error('Processing error:', error);
-      alert('Failed to process video. Please try again.');
+    } catch (err) {
+      console.error("FFmpeg failed:", err);
+      alert("Video processing failed. Please try another file.");
     } finally {
       setIsProcessing(false);
     }
@@ -84,9 +101,8 @@ export default function Index() {
 
   const handleDownload = () => {
     if (!uploadedFile || !isProcessed || !processedUrl) return;
-    
-    // Create download link
-    const a = document.createElement('a');
+
+    const a = document.createElement("a");
     a.href = processedUrl;
     a.download = `no-audio-${uploadedFile.name}`;
     document.body.appendChild(a);
@@ -94,21 +110,34 @@ export default function Index() {
     document.body.removeChild(a);
   };
 
-  // Clean up URL object when component unmounts or processedUrl changes
+  // ✅ Cleanup object URL
   useEffect(() => {
     return () => {
-      if (processedUrl) {
-        URL.revokeObjectURL(processedUrl);
-      }
+      if (processedUrl) URL.revokeObjectURL(processedUrl);
     };
   }, [processedUrl]);
 
+  const readFileAsUint8Array = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        resolve(new Uint8Array(event.target.result));
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return (
+      parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
   };
 
   return (
@@ -126,14 +155,14 @@ export default function Index() {
               Upload a video file to get started with processing
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             {/* Upload Section */}
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
-                Upload Video File Size less then 100mb*
+                Upload Video File (less than 100MB)*
               </label>
-              
+
               <div
                 className={cn(
                   "relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 cursor-pointer",
@@ -156,7 +185,7 @@ export default function Index() {
                   onChange={handleFileInputChange}
                   className="hidden"
                 />
-                
+
                 <div className="flex flex-col items-center">
                   {uploadedFile ? (
                     <>
@@ -181,7 +210,7 @@ export default function Index() {
                   )}
                 </div>
               </div>
-              
+
               {uploadedFile && (
                 <div className="text-center">
                   <Button
@@ -253,7 +282,7 @@ export default function Index() {
         </Card>
 
         <div className="text-center mt-8 text-slate-500 text-sm">
-          Supports all common video formats: MP4, AVI, MOV, MKV, and more
+          Supports MP4, AVI, MOV, MKV, and more
         </div>
       </div>
     </div>

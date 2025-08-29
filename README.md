@@ -1,70 +1,47 @@
-# Getting Started with Create React App
+# Audio Remover Project
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Project Overview
+This project is a web application that allows users to upload video files, process them to remove audio tracks, and download the processed videos. It leverages FFmpeg compiled to WebAssembly to perform video processing directly in the browser.
+
+## Project Structure
+- `frontend/`: Contains the React frontend application source code.
+  - `pages/`: React pages including the main video processing page.
+  - `components/`: UI components used throughout the app.
+  - `lib/`: Utility functions.
+- `shared/`: Shared code between frontend and backend (if any).
+- `public/`: Static assets like images and manifest files.
+- `vite.config.js`: Vite configuration for frontend development server.
+- `vite.config.server.js`: Vite configuration for backend server build.
+- `package.json`: Project dependencies and scripts.
+- `README.md`: Project overview and documentation.
+
+## Technologies Used
+- React with Vite as the build tool and development server.
+- FFmpeg compiled to WebAssembly (`@ffmpeg/ffmpeg`) for client-side video processing.
+- Tailwind CSS for styling.
+- Radix UI and Lucide React for UI components and icons.
+
+## Setup Instructions
+1. Clone the repository.
+2. Install dependencies using your package manager (e.g., `npm install` or `pnpm install`).
+3. Run the development server:
+   ```
+   npm run dev
+   ```
+4. Open your browser and navigate to `http://localhost:8080`.
+5. Upload a video file (less than 100MB), process it to remove audio, and download the processed video.
+
+## What It Does
+- Allows users to upload video files via drag-and-drop or file selection.
+- Processes the video in the browser to remove the audio track using FFmpeg WebAssembly.
+- Provides a download link for the processed video without audio.
 
 ## Available Scripts
+- `npm run dev`: Starts the development server.
+- `npm run build`: Builds the frontend and backend for production.
+- `npm start`: Starts the production server.
 
-In the project directory, you can run:
+## Notes
+- Supports common video formats like MP4, AVI, MOV, MKV.
+- File size limit is 100MB for browser safety.
 
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

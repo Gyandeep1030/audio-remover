@@ -20,12 +20,10 @@
     "test": "vitest --run"
   },
   "dependencies": {
-    "@types/fluent-ffmpeg": "^2.1.27",
+    "@ffmpeg/ffmpeg": "^0.12.15",
     "@types/multer": "^2.0.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "ffmpeg": "^0.0.4",
-    "fluent-ffmpeg": "^2.1.3",
     "multer": "^2.0.2",
     "zod": "^3.25.76"
   },
